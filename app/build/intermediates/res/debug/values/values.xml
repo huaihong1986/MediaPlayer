@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/hahong/Desktop/android/MediaPlayer/app/src/main/res/values/strings.xml -->
+    <eat-comment/>
+    <string name="app_name">本地音乐播放器</string>
+    <string name="clear_music_list">清除播放列表</string>
+    <string name="exit">退出</string>
+    <string name="hello">Hello World, MediaActivity!</string>
+    <string name="play_stycle1">随机播放</string>
+    <string name="play_stycle2">顺序播放</string>
+    <string name="play_stycle3">循环播放</string>
+    <string name="play_stycle4">单曲循环</string>
+    <string name="search">搜索本地音乐</string>
+</resources>

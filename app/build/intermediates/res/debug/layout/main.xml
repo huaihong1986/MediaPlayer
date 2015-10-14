@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/button1_src"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="从源文件中播放" />
+
+    <Button
+        android:id="@+id/button2_sys"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="从系统文件中播放" />
+
+    <Button
+        android:id="@+id/button3_net"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="从网络中播放" />
+
+</LinearLayout><!-- From: file:/Users/hahong/Desktop/android/MediaPlayer/app/src/main/res/layout/main.xml -->

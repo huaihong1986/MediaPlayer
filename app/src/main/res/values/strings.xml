@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, MediaActivity!</string>
+    <string name="app_name">本地音乐播放器</string>
+    <string name="search">搜索本地音乐</string>
+    <string name="clear_music_list">清除播放列表</string>
+    <string name="exit">退出</string>
+    <string name="play_style1">随机播放</string>
+    <string name="play_style2">顺序播放</string>
+    <string name="play_style3">循环播放</string>
+    <string name="play_style4">单曲循环</string>
+</resources>
