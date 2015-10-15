@@ -37,7 +37,7 @@ import java.util.concurrent.Executors;
 public class MediaPlayerActivity extends Activity implements OnCompletionListener,OnErrorListener,OnSeekBarChangeListener,OnItemClickListener,Runnable{
 
     protected static final int SEARCH_MUSIC_SUCCESS = 0;// 搜索成功标记
-    private Button chooseStycle;
+    private Button chooseStyle;
     private int clickNum = 0;
     private SeekBar seekBar;
     private ListView listView;
@@ -92,13 +92,12 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     @Override
     protected void onDestroy() {
         if (mp != null) {
+
             flag= false;
-
-
             mp.stop();
-
             //释放资源
             mp.release();
+            mp = null;
         }
 
         Log.v(TAG,"onDestroy");
@@ -109,7 +108,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
      * 初始化UI组件
      */
     private void initView() {
-        chooseStycle =(Button)findViewById(R.id.btn_choose);
+        chooseStyle =(Button)findViewById(R.id.btn_choose);
         btnPlay = (ImageButton) findViewById(R.id.media_play);
         seekBar = (SeekBar) findViewById(R.id.seekBar1);
         seekBar.setOnSeekBarChangeListener(this);
@@ -135,7 +134,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                     //搜索音乐文件结束时
                     ma = new MusicListAdapter();
                     listView.setAdapter(ma);
-                    pd.dismiss();
+                    if(pd!=null)pd.dismiss();
                     break;
                 case CURR_TIME_VALUE:
                     //设置当前时间
@@ -158,7 +157,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                         Environment.MEDIA_MOUNTED)) {
                     pd = ProgressDialog.show(this, "", "正在搜索音乐文件...", true);
                     new Thread(new Runnable() {
-                        String[] ext ={ ".MP3",".3GP",".MPEG-4","WAVE","OGG"};
+                        String[] ext ={ ".MP3",".3GP",".MPEG-4",".WAVE",".OGG"};
                         File file = Environment.getExternalStorageDirectory();
 
                         public void run() {
@@ -175,7 +174,8 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             //清除播放列表菜单
             case R.id.item2_clear:
                 list.clear();
-                ma.notifyDataSetChanged();
+                if(ma!=null)
+                     ma.notifyDataSetChanged();
                 break;
             //退出菜单
             case R.id.item3_exit:
@@ -277,6 +277,8 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                 start();
             } else {
                 Toast.makeText(this, "当前已经是第一首歌曲了", Toast.LENGTH_SHORT).show();
+                currIndex=list.size()-1;
+                start();
             }
             return;
         }
@@ -311,6 +313,8 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                 start();
             } else {
                 Toast.makeText(this, "当前已经是最后一首歌曲了", Toast.LENGTH_SHORT).show();
+                currIndex=0;
+                start();
             }
             return;
         }
@@ -331,12 +335,18 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     private void start() {
         if (list.size() > 0 && currIndex < list.size()) {
             String SongPath = list.get(currIndex);
-            mp.reset();
             flag = true;
             try {
-                mp.setDataSource(SongPath);
-                mp.prepare();
-                mp.start();
+                if(mp!=null){
+                    synchronized (mp) {
+                        if (mp != null) {
+                            mp.reset();
+                            mp.setDataSource(SongPath);
+                            mp.prepare();
+                            mp.start();
+                        } else return;
+                    }
+                }else return;
                 initSeekBar();
                 es.execute(this);
                 String [] temp = null;
@@ -363,31 +373,31 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
         if(clickNum==0)
             {
                 clickNum=1;
-                chooseStycle.setText(getString(R.string.play_style2));
+                chooseStyle.setText(getString(R.string.play_style2));
 
                 return;
             }//orderStyle
         if(clickNum==1)
             {
                 clickNum=2;
-                chooseStycle.setText(getString(R.string.play_style3));
+                chooseStyle.setText(getString(R.string.play_style3));
 
                 return;
             }//loopStyle
         if(clickNum==2)
             {
                 clickNum=3;
-                chooseStycle.setText(getString(R.string.play_style4));
+                chooseStyle.setText(getString(R.string.play_style4));
 
                 return;
             }//randStyle
         if(clickNum==3)
-        {
-            clickNum=0;
-            chooseStycle.setText(getString(R.string.play_style1));
+            {
+                clickNum = 0;
+                chooseStyle.setText(getString(R.string.play_style1));
 
-            return;
-        }//OneLoopStyle
+                return;
+            }//OneLoopStyle
     }
 
     //播放按钮
@@ -447,19 +457,25 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     public void run() {
 
         while(flag){
+            if(mp != null) {
+                synchronized (mp) {
+                    if (mp.isPlaying()) {
+                        final int position = mp.getCurrentPosition();
+                        if (position < seekBar.getMax()) {
+                            seekBar.setProgress(position);
+                            Message msg = hander.obtainMessage(CURR_TIME_VALUE, toTime(position));
+                            hander.sendMessage(msg);
+                        } else flag = false;
+                    } else flag = false;
 
-            if(mp.getCurrentPosition()<seekBar.getMax()){
-                seekBar.setProgress(mp.getCurrentPosition());
-                Message msg = hander.obtainMessage(CURR_TIME_VALUE, toTime(mp.getCurrentPosition()));
-                hander.sendMessage(msg);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+            }else flag = false;
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            else flag = false;
         }
     }
 
