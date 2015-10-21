@@ -2,6 +2,7 @@ package com.vince.media;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MediaPlayerActivity extends Activity implements OnCompletionListener,OnErrorListener,OnSeekBarChangeListener,OnItemClickListener,Runnable{
+public class MediaPlayerActivity extends Activity implements OnCompletionListener, OnErrorListener, OnSeekBarChangeListener, OnItemClickListener, Runnable {
 
     protected static final int SEARCH_MUSIC_SUCCESS = 0;// 搜索成功标记
     private Button chooseStyle;
@@ -42,7 +43,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     private SeekBar seekBar;
     private ListView listView;
     private ImageButton btnPlay;
-    private TextView tv_currTime,tv_totalTime;
+    private TextView tv_currTime, tv_totalTime;
     private AlwaysMarqueeTextView tv_showName;
     private List<String> list;
     private ProgressDialog pd; // 进度条对话框
@@ -58,7 +59,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     private static final int CURR_TIME_VALUE = 1;
 
     private int currState = IDLE; // 当前播放器的状态
-    private String TAG="MediaPlayerActivity";
+    private String TAG = "MediaPlayerActivity";
     //定义线程池（同时只能有一个线程运行）
     ExecutorService es = Executors.newSingleThreadExecutor();
 
@@ -75,12 +76,13 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
         initView();
         Log.v(TAG, "onCreate");
     }
+
     //force to show overflow menu in actionbar
     private void getOverflowMenu() {
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
+            if (menuKeyField != null) {
                 menuKeyField.setAccessible(true);
                 menuKeyField.setBoolean(config, false);
             }
@@ -88,19 +90,24 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             e.printStackTrace();
         }
     }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
 
+
+    }
     @Override
     protected void onDestroy() {
         if (mp != null) {
 
-            flag= false;
+            flag = false;
             mp.stop();
             //释放资源
             mp.release();
             mp = null;
         }
 
-        Log.v(TAG,"onDestroy");
+        Log.v(TAG, "onDestroy");
         super.onDestroy();
     }
 
@@ -108,7 +115,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
      * 初始化UI组件
      */
     private void initView() {
-        chooseStyle =(Button)findViewById(R.id.btn_choose);
+        chooseStyle = (Button) findViewById(R.id.btn_choose);
         btnPlay = (ImageButton) findViewById(R.id.media_play);
         seekBar = (SeekBar) findViewById(R.id.seekBar1);
         seekBar.setOnSeekBarChangeListener(this);
@@ -134,7 +141,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                     //搜索音乐文件结束时
                     ma = new MusicListAdapter();
                     listView.setAdapter(ma);
-                    if(pd!=null)pd.dismiss();
+                    if (pd != null) pd.dismiss();
                     break;
                 case CURR_TIME_VALUE:
                     //设置当前时间
@@ -143,7 +150,9 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                 default:
                     break;
             }
-        };
+        }
+
+        ;
     };
 
     @Override
@@ -157,7 +166,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                         Environment.MEDIA_MOUNTED)) {
                     pd = ProgressDialog.show(this, "", "正在搜索音乐文件...", true);
                     new Thread(new Runnable() {
-                        String[] ext ={ ".MP3",".3GP",".MPEG-4",".WAVE",".OGG"};
+                        String[] ext = {".MP3", ".3GP", ".MPEG-4", ".WAVE", ".OGG"};
                         File file = Environment.getExternalStorageDirectory();
 
                         public void run() {
@@ -174,8 +183,8 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             //清除播放列表菜单
             case R.id.item2_clear:
                 list.clear();
-                if(ma!=null)
-                     ma.notifyDataSetChanged();
+                if (ma != null)
+                    ma.notifyDataSetChanged();
                 break;
             //退出菜单
             case R.id.item3_exit:
@@ -230,9 +239,9 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             }
             TextView tv_music_name = (TextView) convertView
                     .findViewById(R.id.textView1_music_name);
-            String [] temp = null;
+            String[] temp = null;
             temp = list.get(position).split("/");
-            tv_music_name.setText(temp[temp.length-1]);
+            tv_music_name.setText(temp[temp.length - 1]);
             //tv_music_name.setText(list.get(position));
             return convertView;
         }
@@ -260,7 +269,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
 
     //上一首
     private void previous() {
-        if(clickNum==0) {
+        if (clickNum == 0) {
 
 
             int rand = (int) (Math.random() * (list.size()));
@@ -271,23 +280,23 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             start();
             return;
         }
-        if(clickNum==1||clickNum==3) {
+        if (clickNum == 1 || clickNum == 3) {
             if ((currIndex - 1) >= 0) {
                 currIndex--;
                 start();
             } else {
                 Toast.makeText(this, "当前已经是第一首歌曲了", Toast.LENGTH_SHORT).show();
-                currIndex=list.size()-1;
+                currIndex = list.size() - 1;
                 start();
             }
             return;
         }
-        if(clickNum==2){
+        if (clickNum == 2) {
             if ((currIndex - 1) >= 0) {
                 currIndex--;
                 start();
             } else {
-                currIndex=list.size()-1;
+                currIndex = list.size() - 1;
                 start();
             }
             return;
@@ -298,7 +307,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     //下一自首
     private void next() {
 
-        if(clickNum==0) {
+        if (clickNum == 0) {
             int rand = (int) (Math.random() * (list.size()));
             while (rand == currIndex) {
                 rand = (int) (Math.random() * (list.size()));
@@ -307,23 +316,23 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             start();
             return;
         }
-        if(clickNum==1||clickNum==3){
+        if (clickNum == 1 || clickNum == 3) {
             if (currIndex + 1 < list.size()) {
                 currIndex++;
                 start();
             } else {
                 Toast.makeText(this, "当前已经是最后一首歌曲了", Toast.LENGTH_SHORT).show();
-                currIndex=0;
+                currIndex = 0;
                 start();
             }
             return;
         }
-        if(clickNum==2){
+        if (clickNum == 2) {
             if (currIndex + 1 < list.size()) {
                 currIndex++;
                 start();
             } else {
-                currIndex=0;
+                currIndex = 0;
                 start();
             }
             return;
@@ -337,7 +346,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             String SongPath = list.get(currIndex);
             flag = true;
             try {
-                if(mp!=null){
+                if (mp != null) {
                     synchronized (mp) {
                         if (mp != null) {
                             mp.reset();
@@ -346,12 +355,12 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                             mp.start();
                         } else return;
                     }
-                }else return;
+                } else return;
                 initSeekBar();
                 es.execute(this);
-                String [] temp = null;
+                String[] temp = null;
                 temp = list.get(currIndex).split("/");
-                tv_showName.setText(temp[temp.length-1]);
+                tv_showName.setText(temp[temp.length - 1]);
                 tv_showName.startScroll();
                 //tv_showName.setText(list.get(currIndex));
                 btnPlay.setImageResource(R.drawable.ic_media_pause);
@@ -359,69 +368,66 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             Toast.makeText(this, "播放列表为空", Toast.LENGTH_SHORT).show();
         }
     }
+
     //播放方式选择按钮
-    public void choose(View v){
+    public void choose(View v) {
         choose();
     }
 
     private void choose() {
 
-        if(clickNum==0)
-            {
-                clickNum=1;
-                chooseStyle.setText(getString(R.string.play_style2));
+        if (clickNum == 0) {
+            clickNum = 1;
+            chooseStyle.setText(getResources().getText(R.string.play_style2));
 
-                return;
-            }//orderStyle
-        if(clickNum==1)
-            {
-                clickNum=2;
-                chooseStyle.setText(getString(R.string.play_style3));
+            return;
+        }//orderStyle
+        if (clickNum == 1) {
+            clickNum = 2;
+            chooseStyle.setText(getString(R.string.play_style3));
 
-                return;
-            }//loopStyle
-        if(clickNum==2)
-            {
-                clickNum=3;
-                chooseStyle.setText(getString(R.string.play_style4));
+            return;
+        }//loopStyle
+        if (clickNum == 2) {
+            clickNum = 3;
+            chooseStyle.setText(getString(R.string.play_style4));
 
-                return;
-            }//randStyle
-        if(clickNum==3)
-            {
-                clickNum = 0;
-                chooseStyle.setText(getString(R.string.play_style1));
+            return;
+        }//randStyle
+        if (clickNum == 3) {
+            clickNum = 0;
+            chooseStyle.setText(getString(R.string.play_style1));
 
-                return;
-            }//OneLoopStyle
+            return;
+        }//OneLoopStyle
     }
 
     //播放按钮
-    public void play(View v){
+    public void play(View v) {
         play();
     }
 
     //上一首按钮
-    public void previous(View v){
+    public void previous(View v) {
         previous();
     }
 
     //下一首按钮
-    public void next(View v){
+    public void next(View v) {
         next();
     }
 
     //监听器，当当前歌曲播放完时触发，播放下一首
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if(list.size()>0){
-            if(clickNum==3) start();
-            else  next();
-        }else{
+        if (list.size() > 0) {
+            if (clickNum == 3) start();
+            else next();
+        } else {
             Toast.makeText(this, "播放列表为空", Toast.LENGTH_SHORT).show();
         }
     }
@@ -434,30 +440,31 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     }
 
     //初始化SeekBar
-    private void initSeekBar(){
+    private void initSeekBar() {
         seekBar.setMax(mp.getDuration());
         seekBar.setProgress(0);
         tv_totalTime.setText(toTime(mp.getDuration()));
     }
 
-    private String toTime(int time){
+    private String toTime(int time) {
         int minute = time / 1000 / 60;
         int s = time / 1000 % 60;
         String mm = null;
         String ss = null;
-        if(minute<10)mm = "0" + minute;
+        if (minute < 10) mm = "0" + minute;
         else mm = minute + "";
 
-        if(s <10)ss = "0" + s;
+        if (s < 10) ss = "0" + s;
         else ss = "" + s;
 
         return mm + ":" + ss;
     }
+
     @Override
     public void run() {
 
-        while(flag){
-            if(mp != null) {
+        while (flag) {
+            if (mp != null) {
                 synchronized (mp) {
                     if (mp.isPlaying()) {
                         final int position = mp.getCurrentPosition();
@@ -469,7 +476,7 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
                     } else flag = false;
 
                 }
-            }else flag = false;
+            } else flag = false;
 
             try {
                 Thread.sleep(500);
@@ -484,13 +491,15 @@ public class MediaPlayerActivity extends Activity implements OnCompletionListene
     public void onProgressChanged(SeekBar seekBar, int progress,
                                   boolean fromUser) {
         //是否由用户改变
-        if(fromUser){
+        if (fromUser) {
             mp.seekTo(progress);
         }
     }
+
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
     }
+
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
     }

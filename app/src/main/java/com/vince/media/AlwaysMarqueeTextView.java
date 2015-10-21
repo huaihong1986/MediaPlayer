@@ -9,7 +9,7 @@ import android.widget.TextView;
 /**
  * Created by hahong on 15-10-14.
  */
-public class  AlwaysMarqueeTextView extends TextView implements Runnable {
+public class AlwaysMarqueeTextView extends TextView implements Runnable {
     private int currentScrollX;// 当前滚动的位置
     private boolean isStop = false;
     private int textWidth;
